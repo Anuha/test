@@ -55,6 +55,19 @@ select movies.movie_id, movies.title, avg(ratings.rating) as average_rating from
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 
+--create table movies (
+--   id int,
+--  title string,
+--  genres array<string>
+-- )
+-- row format delimited
+-- fields terminated by "*"
+-- collection items terminated by "|"
+-- lines terminated by "\n"
+-- stored as textfile;
+
+-- load data inpath "/data/power/movies" into table movies;
+
 --create table for movies 
 create table if not exists movies (
 	movie_id BIGINT,
@@ -134,11 +147,28 @@ LOAD DATA INPATH '/data/power/ratings/u.data' OVERWRITE INTO TABLE ratings;
 select ratings.rating, users.age ,ratings.user_id from ratings INNER JOIN users on ratings.user_id=users.id; 
 select ratings.rating, users.age ,ratings.user_id from ratings INNER JOIN users on ratings.user_id=users.id where users.age >= 20 and users.age <= 35; 
 
+-- which age group gives the highest rating i.e 5 
+SELECT u.age, count(*) 
+FROM movie rating r, user u 
+WHERE r.userid = u.id AND r.rating = 5
+GROUP BY u.age;
+
 #how many students rated movies 
+SELECT o.name, count(*)
+FROM movie rating r, occupation o, user u 
+WHERE r.userid = u.id
+AND occupation = 'student'
+AND r.rating = 5;
 
+--most popular genre 
+from (select explode(genres) as genre from movies) genres
+select genres.genre, count(*) as popularity
+group by genres.genre
+order by popularity desc;
 
-
-
+--explode
+ select explode(genres) as genre
+from movies;
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 
